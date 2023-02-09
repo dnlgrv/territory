@@ -8,11 +8,12 @@ defmodule TerritoryWeb.PageLive do
     TerritoryWeb.Endpoint.subscribe(@presence)
 
     Presence.track(self(), @presence, user_id, %{
-      connected_at: inspect(System.system_time(:millisecond)),
+      id: user_id,
+      ping: nil,
       region: region()
     })
 
-    {:ok, socket, temporary_assigns: [users: []]}
+    {:ok, assign(socket, :user_id, user_id), temporary_assigns: [users: []]}
   end
 
   def render(assigns) do
@@ -24,6 +25,8 @@ defmodule TerritoryWeb.PageLive do
         <%= for user <- @users do %>
           <li>
             <%= user.id %> - <%= region_name(user.region) %>
+            <img src={"https://fly.io/ui/images/#{region_key(user.region)}.svg"} width="100" />
+            <%= user.ping %>ms
           </li>
         <% end %>
       </ul>
@@ -31,29 +34,41 @@ defmodule TerritoryWeb.PageLive do
     """
   end
 
+  def handle_event("ping", %{"rtt" => ping}, socket) do
+    user =
+      Presence.get_by_key(@presence, socket.assigns.user_id)
+      |> get_user()
+      |> Map.merge(%{ping: ping})
+
+    Presence.update(self(), @presence, socket.assigns.user_id, user)
+
+    {:noreply, push_event(socket, "pong", %{})}
+  end
+
+  defp get_user(%{metas: [user | _]}), do: user
+
   def handle_info(%{event: "presence_diff"}, socket) do
     users =
       Presence.list(@presence)
-      |> Enum.map(fn
-        {user_id, %{metas: [meta | _]}} ->
-          Map.merge(meta, %{id: user_id})
-
-        {user_id, _} ->
-          %{id: user_id}
-      end)
+      |> Enum.map(&elem(&1, 1))
+      |> Enum.map(&get_user/1)
 
     {:noreply, assign(socket, :users, users)}
   end
 
   @region_names %{
     "ams" => "Amsterdam, Netherlands",
-    "iad" => "Ashburn, Virginia (US)",
-    "unknown" => "Unknown"
+    "bos" => "Boston Massachusetts (US)",
+    "gru" => "São Paulo",
+    "yyz" => "Toronto, Canada"
   }
 
   defp region do
-    System.get_env("FLY_REGION", "unknown")
+    System.get_env("FLY_REGION", "ams")
   end
 
-  defp region_name(region), do: Map.get(@region_names, region)
+  defp region_name(region), do: Map.get(@region_names, region, "Unknown")
+
+  defp region_key("bos"), do: "usa"
+  defp region_key(region), do: region
 end
