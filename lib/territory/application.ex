@@ -7,15 +7,13 @@ defmodule Territory.Application do
 
   @impl true
   def start(_type, _args) do
+    topologies = Application.get_env(:libcluster, :topologies, [])
+
     children = [
-      # Start the Telemetry supervisor
       TerritoryWeb.Telemetry,
-      # Start the PubSub system
       {Phoenix.PubSub, name: Territory.PubSub},
-      # Start the Endpoint (http/https)
+      {Cluster.Supervisor, [topologies, [name: Territory.ClusterSupervisor]]},
       TerritoryWeb.Endpoint
-      # Start a worker by calling: Territory.Worker.start_link(arg)
-      # {Territory.Worker, arg}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
