@@ -13,6 +13,7 @@ defmodule Territory.Application do
       TerritoryWeb.Telemetry,
       {Phoenix.PubSub, name: Territory.PubSub},
       {Cluster.Supervisor, [topologies, [name: Territory.ClusterSupervisor]]},
+      TerritoryWeb.Presence,
       TerritoryWeb.Endpoint
     ]
 
