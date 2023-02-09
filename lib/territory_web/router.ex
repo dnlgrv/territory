@@ -8,6 +8,7 @@ defmodule TerritoryWeb.Router do
     plug :put_root_layout, {TerritoryWeb.LayoutView, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :put_unique_id
   end
 
   pipeline :api do
@@ -51,6 +52,17 @@ defmodule TerritoryWeb.Router do
       pipe_through :browser
 
       forward "/mailbox", Plug.Swoosh.MailboxPreview
+    end
+  end
+
+  defp put_unique_id(conn, _opts) do
+    case get_session(conn, :user_id) do
+      nil ->
+        user_id = :crypto.strong_rand_bytes(8) |> Base.encode64()
+        put_session(conn, :user_id, user_id)
+
+      _ ->
+        conn
     end
   end
 end

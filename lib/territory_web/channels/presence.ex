@@ -8,4 +8,16 @@ defmodule TerritoryWeb.Presence do
   use Phoenix.Presence,
     otp_app: :territory,
     pubsub_server: Territory.PubSub
+
+  def fetch(_topic, presences) do
+    for {key, %{metas: metas}} <- presences, into: %{} do
+      {key,
+       %{
+         metas: metas,
+         user: %{
+           id: key
+         }
+       }}
+    end
+  end
 end
