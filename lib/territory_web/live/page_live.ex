@@ -46,12 +46,13 @@ defmodule TerritoryWeb.PageLive do
   end
 
   @region_names %{
-    "ams" => "Amsterdam, Netherland",
-    "iad" => "Ashburn, Virginia (USA)"
+    "ams" => "Amsterdam, Netherlands",
+    "iad" => "Ashburn, Virginia (US)",
+    "unknown" => "Unknown"
   }
 
   defp region do
-    System.get_env("FLY_REGION", "iad")
+    System.get_env("FLY_REGION", "unknown")
   end
 
   defp region_name(region), do: Map.get(@region_names, region)
