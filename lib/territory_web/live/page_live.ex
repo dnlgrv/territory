@@ -33,7 +33,7 @@ defmodule TerritoryWeb.PageLive do
           <.card
             text={region.name}
             subtext={"#{region.count} connected"}
-            image_url={"https://fly.io/ui/images/#{region.id}.svg"}
+            image_url={"https://fly.io/ui/images/#{region_key(region.id)}.svg"}
             />
         <% end %>
       </section>
