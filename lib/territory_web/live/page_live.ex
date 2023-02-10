@@ -41,7 +41,7 @@ defmodule TerritoryWeb.PageLive do
       <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
         <%= for user <- @users do %>
           <.card
-            text={user.id}
+            text={user_text(user)}
             subtext={"$#{user.value}"}
             image_url={"https://fly.io/ui/images/#{region_key(user.region)}.svg"}
             highlight={user.id == @user_id}
@@ -50,6 +50,14 @@ defmodule TerritoryWeb.PageLive do
       </div>
     </div>
     """
+  end
+
+  defp user_text(user) do
+    if user.count > 1 do
+      "#{user.id} (x#{user.count})"
+    else
+      user.id
+    end
   end
 
   def handle_event("increase_value", _params, socket) do
@@ -86,7 +94,9 @@ defmodule TerritoryWeb.PageLive do
     {:noreply, socket}
   end
 
-  defp get_user(%{metas: [user | _]}), do: user
+  defp get_user(%{metas: [user | _]} = client) do
+    Map.put(user, :count, Enum.count(client.metas))
+  end
 
   @region_names %{
     "bos" => "Boston Massachusetts (US)",
