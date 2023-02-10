@@ -11,11 +11,7 @@
     <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")}/>
     <script defer phx-track-static type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}></script>
   </head>
-  <body class="bg-slate-700 my-12">
-    <header class="font-light tracking-widest text-5xl text-slate-300 text-center uppercase">
-      <h1>Territory</h1>
-    </header>
-
+  <body class="bg-slate-700">
     <%= @inner_content %>
   </body>
 </html>

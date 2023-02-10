@@ -24,4 +24,27 @@ defmodule TerritoryWeb.CoreComponents do
     </section>
     """
   end
+
+  def controls(assigns) do
+    ~H"""
+    <div class="flex justify-center">
+      <button class="p-4 rounded bg-sky-500 font-semibold text-white flex items-center gap-2 transition hover:bg-sky-600" phx-click="increase_value">
+        <.icon name={:up_arrow} />
+        Improve my value
+      </button>
+    </div>
+    """
+  end
+
+  def icon(assigns) do
+    apply(__MODULE__, assigns.name, [assigns])
+  end
+
+  def up_arrow(assigns) do
+    ~H"""
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18" />
+    </svg>
+    """
+  end
 end

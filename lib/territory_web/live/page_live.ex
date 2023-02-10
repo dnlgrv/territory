@@ -19,10 +19,10 @@ defmodule TerritoryWeb.PageLive do
   def render(assigns) do
     ~H"""
     <div class="p-8">
-      <div class="mb-12">
-        <button phx-click="increase_value">Increase my value</button>
-        <button>Change colour</button>
-      </div>
+      <header class="flex justify-between items-center mb-12">
+        <h1 class="font-light tracking-widest text-5xl text-slate-300 text-center uppercase">Territory</h1>
+        <.controls />
+      </header>
 
       <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
         <%= for user <- @users do %>
