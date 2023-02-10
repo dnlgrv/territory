@@ -9,7 +9,6 @@ defmodule TerritoryWeb.PageLive do
 
     Presence.track(self(), @presence, user_id, %{
       id: user_id,
-      ping: nil,
       region: region(),
       value: 100
     })
@@ -27,7 +26,6 @@ defmodule TerritoryWeb.PageLive do
           <li>
             <%= user.id %> - <%= region_name(user.region) %>
             <img src={"https://fly.io/ui/images/#{region_key(user.region)}.svg"} width="100" />
-            <%= user.ping %>ms
             $<%= user.value %>
 
             <%= if user.id == @user_id do %>
@@ -52,17 +50,6 @@ defmodule TerritoryWeb.PageLive do
     Presence.update(self(), @presence, socket.assigns.user_id, %{user | value: new_value})
 
     {:noreply, socket}
-  end
-
-  def handle_event("ping", %{"rtt" => ping}, socket) do
-    user =
-      Presence.get_by_key(@presence, socket.assigns.user_id)
-      |> get_user()
-      |> Map.merge(%{ping: ping})
-
-    Presence.update(self(), @presence, socket.assigns.user_id, user)
-
-    {:noreply, push_event(socket, "pong", %{})}
   end
 
   def handle_info(%{event: "presence_diff"}, socket) do

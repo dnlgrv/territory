@@ -24,30 +24,6 @@ import topbar from "../vendor/topbar"
 
 let Hooks = {}
 
-Hooks.Ping = {
-  mounted() {
-    this.handleEvent("pong", () => {
-      let rtt = Date.now() - this.nowMs
-      this.timer = setTimeout(() => this.ping(rtt), 5000)
-    })
-    this.ping(null)
-  },
-
-  reconnected() {
-    clearTimeout(this.timer)
-    this.ping(null)
-  },
-
-  destroyed() {
-    clearTimeout(this.timer)
-  },
-
-  ping(rtt) {
-    this.nowMs = Date.now()
-    this.pushEvent("ping", {rtt})
-  }
-}
-
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
   hooks: Hooks,
