@@ -18,24 +18,22 @@ defmodule TerritoryWeb.PageLive do
 
   def render(assigns) do
     ~H"""
-    <div>
-      Connected users:
+    <div class="p-8">
+      <div class="mb-12">
+        <button phx-click="increase_value">Increase my value</button>
+        <button>Change colour</button>
+      </div>
 
-      <ul>
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
         <%= for user <- @users do %>
-          <li>
-            <%= user.id %> - <%= region_name(user.region) %>
-            <img src={"https://fly.io/ui/images/#{region_key(user.region)}.svg"} width="100" />
-            $<%= user.value %>
-
-            <%= if user.id == @user_id do %>
-              (you)
-            <% end %>
-          </li>
+          <.card
+            text={user.id}
+            subtext={"$#{user.value}"}
+            image_url={"https://fly.io/ui/images/#{region_key(user.region)}.svg"}
+            highlight={user.id == @user_id}
+            />
         <% end %>
-      </ul>
-
-      <button phx-click="increase_value">Increase my value</button>
+      </div>
     </div>
     """
   end

@@ -95,6 +95,7 @@ defmodule TerritoryWeb do
       # Import basic rendering functionality (render, render_layout, etc)
       import Phoenix.View
 
+      import TerritoryWeb.CoreComponents
       import TerritoryWeb.ErrorHelpers
       import TerritoryWeb.Gettext
       alias TerritoryWeb.Router.Helpers, as: Routes
