@@ -11,8 +11,17 @@ defmodule TerritoryWeb.CoreComponents do
         base_classes
       end
 
+    attributes =
+      case Map.get(assigns, :colour) do
+        nil ->
+          []
+
+        colour ->
+          [style: "background-color: #{colour}"]
+      end
+
     ~H"""
-    <section class={class_list}>
+    <section class={class_list} {attributes}>
       <div class="flex">
         <div class="grow flex flex-col gap-2 p-4">
           <h1 class="text-slate-500"><%= @text %></h1>
@@ -29,11 +38,18 @@ defmodule TerritoryWeb.CoreComponents do
 
   def controls(assigns) do
     ~H"""
-    <div class="flex justify-center">
-      <button class="p-4 rounded bg-sky-500 font-semibold text-white flex items-center gap-2 transition hover:bg-sky-600" phx-click="increase_value">
+    <div class="flex justify-center gap-12 h-12">
+      <button class="p-4 max-h-12 rounded bg-sky-500 font-semibold text-white flex items-center gap-2 transition hover:bg-sky-600" phx-click="increase_value">
         <.icon name={:up_arrow} />
         Improve my value
       </button>
+
+      <form phx-change="change_colour">
+        <label class="text-slate-200 flex gap-4 items-center font-semibold">
+          Get Colourful
+          <input type="color" name="colour" value={@colour} class="w-12 h-12" />
+        </label>
+      </form>
     </div>
     """
   end

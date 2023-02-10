@@ -9,13 +9,14 @@ defmodule TerritoryWeb.PageLive do
 
     Presence.track(self(), @presence, user_id, %{
       id: user_id,
+      colour: nil,
       region: region(),
       value: 100
     })
 
     {
       :ok,
-      assign(socket, :user_id, user_id),
+      socket |> assign(:user_id, user_id) |> assign(:current_colour, nil),
       temporary_assigns: [regions: [], users: []]
     }
   end
@@ -25,7 +26,7 @@ defmodule TerritoryWeb.PageLive do
     <div class="p-8">
       <header class="flex justify-between items-center mb-8">
         <h1 class="font-light tracking-widest text-5xl text-slate-300 text-center uppercase">Territory</h1>
-        <.controls />
+        <.controls colour={@current_colour} />
       </header>
 
       <section class="mb-16 grid grid-cols-1 gap-6 opacity-50 md:grid-cols-3">
@@ -45,6 +46,7 @@ defmodule TerritoryWeb.PageLive do
             subtext={"$#{user.value}"}
             image_url={"https://fly.io/ui/images/#{region_key(user.region)}.svg"}
             highlight={user.id == @user_id}
+            colour={user.colour}
             />
         <% end %>
       </div>
@@ -60,11 +62,14 @@ defmodule TerritoryWeb.PageLive do
     end
   end
 
-  def handle_event("increase_value", _params, socket) do
-    user =
-      Presence.get_by_key(@presence, socket.assigns.user_id)
-      |> get_user()
+  def handle_event("change_colour", %{"colour" => colour}, socket) do
+    user = get_user_presence(socket)
+    Presence.update(self(), @presence, socket.assigns.user_id, %{user | colour: colour})
+    {:noreply, assign(socket, :current_colour, colour)}
+  end
 
+  def handle_event("increase_value", _params, socket) do
+    user = get_user_presence(socket)
     new_value = user.value + 100
 
     Presence.update(self(), @presence, socket.assigns.user_id, %{user | value: new_value})
@@ -92,6 +97,12 @@ defmodule TerritoryWeb.PageLive do
       |> assign(:regions, regions)
 
     {:noreply, socket}
+  end
+
+  defp get_user_presence(socket) do
+    @presence
+    |> Presence.get_by_key(socket.assigns.user_id)
+    |> get_user()
   end
 
   defp get_user(%{metas: [user | _]} = client) do
