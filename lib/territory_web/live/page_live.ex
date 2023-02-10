@@ -13,16 +13,30 @@ defmodule TerritoryWeb.PageLive do
       value: 100
     })
 
-    {:ok, assign(socket, :user_id, user_id), temporary_assigns: [users: []]}
+    {
+      :ok,
+      assign(socket, :user_id, user_id),
+      temporary_assigns: [regions: [], users: []]
+    }
   end
 
   def render(assigns) do
     ~H"""
     <div class="p-8">
-      <header class="flex justify-between items-center mb-12">
+      <header class="flex justify-between items-center mb-8">
         <h1 class="font-light tracking-widest text-5xl text-slate-300 text-center uppercase">Territory</h1>
         <.controls />
       </header>
+
+      <section class="mb-16 grid grid-cols-1 gap-6 opacity-50 md:grid-cols-3">
+        <%= for region <- @regions do %>
+          <.card
+            text={region.name}
+            subtext={"#{region.count} connected"}
+            image_url={"https://fly.io/ui/images/#{region.id}.svg"}
+            />
+        <% end %>
+      </section>
 
       <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
         <%= for user <- @users do %>
@@ -51,26 +65,37 @@ defmodule TerritoryWeb.PageLive do
   end
 
   def handle_info(%{event: "presence_diff"}, socket) do
-    users =
-      Presence.list(@presence)
-      |> Enum.map(&elem(&1, 1))
-      |> Enum.map(&get_user/1)
+    presences = Presence.list(@presence) |> Enum.map(&elem(&1, 1))
 
-    {:noreply, assign(socket, :users, users)}
+    users = Enum.map(presences, &get_user/1)
+
+    regions =
+      users
+      |> Enum.reduce(%{}, fn %{region: region}, acc ->
+        Map.update(acc, region, %{id: region, name: region_name(region), count: 1}, fn existing ->
+          %{existing | count: existing.count + 1}
+        end)
+      end)
+      |> Map.values()
+
+    socket =
+      socket
+      |> assign(:users, users)
+      |> assign(:regions, regions)
+
+    {:noreply, socket}
   end
 
   defp get_user(%{metas: [user | _]}), do: user
 
   @region_names %{
-    "ams" => "Amsterdam, Netherlands",
     "bos" => "Boston Massachusetts (US)",
+    "lhr" => "London, United Kingdom",
     "gru" => "São Paulo",
     "yyz" => "Toronto, Canada"
   }
 
-  defp region do
-    System.get_env("FLY_REGION", "ams")
-  end
+  defp region, do: System.get_env("FLY_REGION", "lhr")
 
   defp region_name(region), do: Map.get(@region_names, region, "Unknown")
 
