@@ -18,7 +18,10 @@ defmodule TerritoryWeb.Router do
   scope "/", TerritoryWeb do
     pipe_through :browser
 
-    live "/", PageLive
+    live_session :default do
+      live "/", PageLive
+      live "game_over", GameOverLive
+    end
   end
 
   # Other scopes may use custom stacks.

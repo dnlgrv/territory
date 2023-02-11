@@ -11,6 +11,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontSize: {
+        "giant": "12rem"
+      }
     },
   },
   plugins: [
