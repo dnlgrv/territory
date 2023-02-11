@@ -27,23 +27,25 @@ defmodule TerritoryWeb.PageLive do
 
   def render(assigns) do
     ~H"""
-    <div class="p-8">
-      <header class="flex justify-between items-center mb-8">
-        <h1 class="font-light tracking-widest text-5xl text-slate-300 text-center uppercase">Territory</h1>
-        <.controls colour={@current_colour} regions={@regions} />
-      </header>
+    <div>
+      <div class="bg-gradient-to-b from-slate-700 to-slate-800 p-8">
+        <header class="flex flex-col gap-6 lg:flex-row sm:justify-between items-center mb-8">
+          <h1 class="font-light tracking-widest text-5xl text-slate-300 text-center uppercase">Territory</h1>
+          <.controls colour={@current_colour} regions={@regions} />
+        </header>
 
-      <section class="mb-16 grid grid-cols-1 gap-6 opacity-50 md:grid-cols-3">
-        <%= for region <- @regions do %>
-          <.card
-            text={region.name}
-            subtext={"#{region.count} connected"}
-            image_url={"https://fly.io/ui/images/#{region_key(region.id)}.svg"}
-            />
-        <% end %>
-      </section>
+        <section class="grid grid-cols-1 gap-6 md:grid-cols-3">
+          <%= for region <- @regions do %>
+            <.card
+              text={region.name}
+              subtext={"#{region.count} connected"}
+              image_url={"https://fly.io/ui/images/#{region_key(region.id)}.svg"}
+              />
+          <% end %>
+        </section>
+      </div>
 
-      <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div class="grid grid-cols-1 gap-6 p-8 md:grid-cols-3">
         <%= for user <- @users, filter_by_selected_region(user, @selected_region) do %>
           <.card
             text={user_text(user)}
