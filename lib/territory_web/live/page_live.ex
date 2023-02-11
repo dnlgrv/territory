@@ -4,21 +4,25 @@ defmodule TerritoryWeb.PageLive do
 
   @presence "page"
 
-  def mount(_params, %{"user_id" => user_id}, socket) do
+  def mount(params, %{"user_id" => user_id}, socket) do
     TerritoryWeb.Endpoint.subscribe(@presence)
 
     Presence.track(self(), @presence, user_id, %{
       id: user_id,
       colour: nil,
-      region: region(),
+      region: Map.get(params, "region", region()),
       value: 100
     })
 
-    {
-      :ok,
-      socket |> assign(:user_id, user_id) |> assign(:current_colour, nil),
-      temporary_assigns: [regions: [], users: []]
-    }
+    socket =
+      socket
+      |> assign(:user_id, user_id)
+      |> assign(:current_colour, nil)
+      |> assign(:selected_region, nil)
+      |> assign(:users, [])
+      |> assign(:regions, [])
+
+    {:ok, socket}
   end
 
   def render(assigns) do
@@ -26,7 +30,7 @@ defmodule TerritoryWeb.PageLive do
     <div class="p-8">
       <header class="flex justify-between items-center mb-8">
         <h1 class="font-light tracking-widest text-5xl text-slate-300 text-center uppercase">Territory</h1>
-        <.controls colour={@current_colour} />
+        <.controls colour={@current_colour} regions={@regions} />
       </header>
 
       <section class="mb-16 grid grid-cols-1 gap-6 opacity-50 md:grid-cols-3">
@@ -40,7 +44,7 @@ defmodule TerritoryWeb.PageLive do
       </section>
 
       <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <%= for user <- @users do %>
+        <%= for user <- @users, filter_by_selected_region(user, @selected_region) do %>
           <.card
             text={user_text(user)}
             subtext={"$#{user.value}"}
@@ -54,6 +58,10 @@ defmodule TerritoryWeb.PageLive do
     """
   end
 
+  defp filter_by_selected_region(_, nil), do: true
+  defp filter_by_selected_region(%{region: region}, region), do: true
+  defp filter_by_selected_region(_, _), do: false
+
   defp user_text(user) do
     if user.count > 1 do
       "#{user.id} (x#{user.count})"
@@ -66,6 +74,14 @@ defmodule TerritoryWeb.PageLive do
     user = get_user_presence(socket)
     Presence.update(self(), @presence, socket.assigns.user_id, %{user | colour: colour})
     {:noreply, assign(socket, :current_colour, colour)}
+  end
+
+  def handle_event("filter_by_region", %{"region" => ""}, socket) do
+    {:noreply, assign(socket, :selected_region, nil)}
+  end
+
+  def handle_event("filter_by_region", %{"region" => region}, socket) do
+    {:noreply, assign(socket, :selected_region, region)}
   end
 
   def handle_event("increase_value", _params, socket) do
