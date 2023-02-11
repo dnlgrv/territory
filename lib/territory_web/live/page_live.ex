@@ -2,9 +2,11 @@ defmodule TerritoryWeb.PageLive do
   use TerritoryWeb, :live_view
   alias TerritoryWeb.Presence
 
+  @events "events"
   @presence "page"
 
   def mount(params, %{"user_id" => user_id}, socket) do
+    TerritoryWeb.Endpoint.subscribe(@events)
     TerritoryWeb.Endpoint.subscribe(@presence)
 
     Presence.track(self(), @presence, user_id, %{
@@ -115,6 +117,10 @@ defmodule TerritoryWeb.PageLive do
       |> assign(:regions, regions)
 
     {:noreply, socket}
+  end
+
+  def handle_info(:game_over, socket) do
+    {:noreply, push_redirect(socket, to: "/game_over")}
   end
 
   defp get_user_presence(socket) do

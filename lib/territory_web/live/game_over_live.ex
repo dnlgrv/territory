@@ -8,8 +8,8 @@ defmodule TerritoryWeb.GameOverLive do
 
   def render(assigns) do
     ~H"""
-    <div class="h-screen w-screen bg-slate-900 text-red-700 flex items-center justify-center">
-      <h1 class={"text-giant uppercase font-bold tracking-widest center transition duration-[8000ms] opacity-0 #{@opacity_class}"}>
+    <div class="h-screen w-screen bg-slate-900 text-red-700 flex items-center justify-center p-8">
+      <h1 class={"text-giant uppercase text-center leading-none font-bold tracking-widest center transition duration-[8000ms] opacity-0 #{@opacity_class}"}>
         Game over
       </h1>
     </div>
