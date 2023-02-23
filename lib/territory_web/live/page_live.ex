@@ -4,6 +4,7 @@ defmodule TerritoryWeb.PageLive do
 
   @events "events"
   @presence "page"
+  @value_cap 2000
 
   def mount(params, %{"user_id" => user_id}, socket) do
     TerritoryWeb.Endpoint.subscribe(@events)
@@ -51,7 +52,7 @@ defmodule TerritoryWeb.PageLive do
         <%= for user <- @users, filter_by_selected_region(user, @selected_region) do %>
           <.card
             text={user_text(user)}
-            subtext={"$#{user.value}"}
+            subtext={user_value(user)}
             image_url={"https://fly.io/ui/images/#{region_key(user.region)}.svg"}
             highlight={user.id == @user_id}
             colour={user.colour}
@@ -74,6 +75,9 @@ defmodule TerritoryWeb.PageLive do
     end
   end
 
+  defp user_value(%{value: @value_cap}), do: "💰🤑💰"
+  defp user_value(%{value: value}), do: "$#{value}"
+
   def handle_event("change_colour", %{"colour" => colour}, socket) do
     user = get_user_presence(socket)
     Presence.update(self(), @presence, socket.assigns.user_id, %{user | colour: colour})
@@ -90,7 +94,7 @@ defmodule TerritoryWeb.PageLive do
 
   def handle_event("increase_value", _params, socket) do
     user = get_user_presence(socket)
-    new_value = user.value + 100
+    new_value = min(user.value + 100, @value_cap)
 
     Presence.update(self(), @presence, socket.assigns.user_id, %{user | value: new_value})
 
